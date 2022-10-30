@@ -25,36 +25,104 @@ router.get('/', (req, res, next) => {
 
 //  GET the Book Details page in order to add a new Book
 router.get('/add', (req, res, next) => {
+//
+  res.render('book/add', {title: 'Add Book', 
+  displayName: req.user ? req.user.displayName : ''})          
+}
 
-    /*********/router.get('/', bookController.displayBookList);
-
-});
+);
 
 // POST process the Book Details page and create a new Book - CREATE
 router.post('/add', (req, res, next) => {
 
-    /*****************/
-    router.post('/add', requireAuth, bookController.processAddPage);
+  let newBook = Book({
+    "name": req.body.name,
+    "author": req.body.author,
+    "published": req.body.published,
+    "description": req.body.description,
+    "price": req.body.price
+});
+
+Book.create(newBook, (err, Book) =>{
+    if(err)
+    {
+        console.log(err);
+        res.end(err);
+    }
+    else
+    {
+        // refresh the book list
+        res.redirect('/book-list');
+    }
 
 });
 
 // GET the Book Details page in order to edit an existing Book
 router.get('/:id', (req, res, next) => {
 
-    /*********/router.get('/edit/:id', requireAuth, bookController.displayEditPage);
+    /*********/let id = req.params.id;
+
+    Book.findById(id, (err, bookToEdit) => {
+      if(err)
+      {
+          console.log(err);
+          res.end(err);
+      }
+      else
+      {
+          //show the edit view
+          res.render('book/edit', {title: 'Edit Book', book: bookToEdit, 
+          displayName: req.user ? req.user.displayName : ''})
+      }
+  });
 });
 
 // POST - process the information passed from the details form and update the document
 router.post('/:id', (req, res, next) => {
 
-    /*******/router.post('/add', requireAuth, bookController.processAddPage);
+    /*******/ let id = req.params.id
 
+    let updatedBook = Book({
+      "_id": id,
+      "name": req.body.name,
+      "author": req.body.author,
+      "published": req.body.published,
+      "description": req.body.description,
+      "price": req.body.price
+  });
+
+  Book.updateOne({_id: id}, updatedBook, (err) => {
+      if(err)
+      {
+          console.log(err);
+          res.end(err);
+      }
+      else
+      {
+          // refresh the book list
+          res.redirect('/book-list');
+      }
+  });
+  
 });
 
 // GET - process the delete by user id
 router.get('/delete/:id', (req, res, next) => {
 
-    /******/router.get('/delete/:id', requireAuth, bookController.performDelete);
+    /******/ let id = req.params.id;
+
+    Book.remove({_id: id}, (err) => {
+      if(err)
+      {
+          console.log(err);
+          res.end(err);
+      }
+      else
+      {
+           // refresh the book list
+           res.redirect('/book-list');
+      }
+  });
 });
 
 
