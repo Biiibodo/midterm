@@ -2,6 +2,7 @@
 let express = require('express');
 let router = express.Router();
 let mongoose = require('mongoose');
+const books = require('../models/books');
 
 // define the book model
 let book = require('../models/books');
@@ -26,7 +27,7 @@ router.get('/', (req, res, next) => {
 //  GET the Book Details page in order to add a new Book
 router.get('/add', (req, res, next) => {
 //
-  res.render('book/add', {title: 'Add Book', 
+  res.render('books/add', {title: 'Add Book', 
   displayName: req.user ? req.user.displayName : ''})          
 }
 
@@ -35,7 +36,7 @@ router.get('/add', (req, res, next) => {
 // POST process the Book Details page and create a new Book - CREATE
 router.post('/add', (req, res, next) => {
 
-  let newBook = Book({
+  let newBooks = books({
     "name": req.body.name,
     "author": req.body.author,
     "published": req.body.published,
@@ -43,7 +44,7 @@ router.post('/add', (req, res, next) => {
     "price": req.body.price
 });
 
-Book.create(newBook, (err, Book) =>{
+books.create(newBooks, (err, Book) =>{
     if(err)
     {
         console.log(err);
@@ -62,7 +63,7 @@ router.get('/:id', (req, res, next) => {
 
     /*********/let id = req.params.id;
 
-    Book.findById(id, (err, bookToEdit) => {
+    books.findById(id, (err, bookToEdit) => {
       if(err)
       {
           console.log(err);
@@ -71,7 +72,7 @@ router.get('/:id', (req, res, next) => {
       else
       {
           //show the edit view
-          res.render('book/edit', {title: 'Edit Book', book: bookToEdit, 
+          res.render('book/edit', {title: 'Edit Book', books: bookToEdit, 
           displayName: req.user ? req.user.displayName : ''})
       }
   });
@@ -82,7 +83,7 @@ router.post('/:id', (req, res, next) => {
 
     /*******/ let id = req.params.id
 
-    let updatedBook = Book({
+    let updatedBook = books({
       "_id": id,
       "name": req.body.name,
       "author": req.body.author,
@@ -91,7 +92,7 @@ router.post('/:id', (req, res, next) => {
       "price": req.body.price
   });
 
-  Book.updateOne({_id: id}, updatedBook, (err) => {
+  books.updateOne({_id: id}, updatedBook, (err) => {
       if(err)
       {
           console.log(err);
